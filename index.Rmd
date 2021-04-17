@@ -1,0 +1,58 @@
+---
+title: "Covid-19 Top Vaccination Countries"
+author: "Ivan Jennings"
+date: "17/04/2021"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r}
+library(dplyr)
+library(plotly)
+library(lubridate)
+
+country_vaccinations <- read.csv("country_vaccinations.csv")
+country_vaccinations$date <- ymd(country_vaccinations$date)
+
+country_vaccinations_basic <- country_vaccinations %>%
+  select(country, date, total_vaccinations)
+
+top8_vaccinations_countries <- country_vaccinations_basic %>%
+  filter(date==ymd("2021-04-15")) %>%
+  arrange(desc(total_vaccinations)) %>%
+  top_n(8) %>%
+  select(country)
+
+top8_vaccinations <- country_vaccinations_basic %>%
+  filter(country %in% top8_vaccinations_countries$country)
+```
+
+
+## Covid-19 Vaccinations
+The purpose of this presentation is to use the plotly package in R to create a useful plot. The following page has a plot using data taken from https://www.kaggle.com/gpreda/covid-world-vaccination-progress. I have filtered out the countries with the highest amount of vaccines completed as of the 15th of April 2021.
+
+## Top 10 Countries
+
+```{r plot, message=FALSE}
+p <- plotly::plot_ly(top8_vaccinations, x=~date,
+                y=~total_vaccinations,
+                color = ~country,
+                colors = "Accent",
+                type="scatter",
+                mode = 'line',
+                fill = 'tozeroy') %>%
+    layout(xaxis = list(title = "Date"),
+         yaxis = list(title = "Total Vaccinations"))
+  
+
+p <- p %>% 
+  layout(title = "Total Covid-19 Vaccinations",
+         xaxis = list(title = "Date"),
+         yaxis = list(title = "Total Vaccinations"))
+p
+```
+
+## Thank you
